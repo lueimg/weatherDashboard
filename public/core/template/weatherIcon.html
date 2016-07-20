@@ -1,0 +1,7 @@
+<div ng-if="isImage">
+    <img ng-src="{{image}}" alt="image">
+</div>
+
+<div ng-if="!isImage">
+    <canvas id="icon-{{idName}}" width="{{size}}" height="{{size}}"></canvas>
+</div>

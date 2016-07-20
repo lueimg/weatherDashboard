@@ -1,0 +1,18 @@
+body {
+    padding-top: 50px;
+}
+/*google maps responsive*/
+.map-wrap {
+    position: relative;
+    padding-bottom: 75%;
+    height: 0;
+    overflow: hidden;
+}
+
+.map {
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
