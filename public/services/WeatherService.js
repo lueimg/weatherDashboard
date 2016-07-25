@@ -12,7 +12,7 @@
               this.lat = 0;
               this.lng = 0;
               this.isFahrenheit = true;
-              this.serviceType = 1;
+              this.serviceType = 2; // by Default could be what we want :)
             };
 
         WeatherService.prototype.getList = function () {

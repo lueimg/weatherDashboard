@@ -58,7 +58,14 @@
                 </div>
                 <div ng-if="wc.weather.currently"
                      class="panel-body text-center">
-                    <div><h1>{{wc.weather.currently.temperature}}°</h1></div>
+                    <div>
+                        <h1>{{wc.weather.currently.temperature}}
+                            <span ng-switch="wc.weatherService.isFahrenheit">
+                                <span ng-switch-when="true">°F</span>
+                                <span ng-switch-when="false">°C</span>
+                            </span>
+                        </h1>
+                    </div>
                     <div>
                         <weather-icon data-image="wc.weather.currently.icon"
                                       data-id-name="main"

@@ -22,9 +22,11 @@ module.exports = function(config) {
       'public/vendor/angular-strap/dist/angular-strap.min.js',
       'public/vendor/angular-spinner/angular-spinner.min.js',
       'public/vendor/ng-debounce/angular-debounce.js',
+      'public/vendor/moment/moment.js',
       'public/core/**/*.js',
       'public/core/**/*.html',
       'public/features/**/*.js',
+      'public/services/**/*.js',
       'public/features/**/*.html',
       'https://maps.googleapis.com/maps/api/js?sensor=false'
     ],
@@ -39,6 +41,7 @@ module.exports = function(config) {
     preprocessors: {
       'public/core/**/*.js': 'coverage',
       'public/features/**/*.js': 'coverage',
+      'public/services/**/*.js': 'coverage',
       'public/core/**/*.html': ['html2js']
     },
 
