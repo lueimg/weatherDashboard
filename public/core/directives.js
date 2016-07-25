@@ -36,20 +36,19 @@
         idName: '@',
         size: '@'
       },
-      controller: ['$scope', function ($scope) {
-        $scope.isImage = $scope.image.indexOf('http') > -1;
-
-      }],
       templateUrl: 'core/template/weatherIcon.html',
       link : function (scope) {
-        if (!scope.isImage) {
-          // Allow to load the canvas first at all
-          $timeout(function () {
-            var skycons = new Skycons({color: 'black'});
-            skycons.add('icon-' + scope.idName, scope.image);
-            skycons.play();
-          }, 500);
-        }
+        scope.$watch('image', function () {
+          scope.isImage = scope.image.indexOf('http') > -1;
+          if (!scope.isImage) {
+            // Allow to load the canvas first at all
+            $timeout(function () {
+              var skycons = new Skycons({color: 'black'});
+              skycons.add('icon-' + scope.idName, scope.image);
+              skycons.play();
+            }, 500);
+          }
+        });
       }
     };
   }]);

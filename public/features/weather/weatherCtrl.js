@@ -5,7 +5,8 @@
       $routeProvider
         .when('/', {
           templateUrl: 'features/weather/weather.html',
-          controller: 'weatherCtrl'
+          controller: 'weatherCtrl',
+          controllerAs: 'wc'
         });
     }])
     .controller('weatherCtrl', [
@@ -13,93 +14,62 @@
       '$http',
       'geoCoder',
       'AddressService',
-      'ForecastIoService',
-      'WeatherUndergroundService',
+      'WeatherService',
       'notification',
-      function ($scope, $http, geoCoder, AddressService, ForecastIoService, WeatherUndergroundService, notification) {
+      function ($scope, $http, geoCoder, AddressService, WeatherService, notification) {
+        var wc = this;
 
-        $scope.config = {
-          temperatureType: 1, // Fahren : 1, celcius: 2
-          selectedAddress: '',
-          apiServer: '2',
-          lat: '',
-          lng: ''
-        };
+        wc.weatherService = new WeatherService();
+        wc.weather = {};
+        wc.showSpinner = false;
+        wc.serviceList = wc.weatherService.getList();
+        wc.selectedAddress = '';
 
-        $scope.weather = {};
-        $scope.showSpinner = false;
-
-        $scope.getAddress = function (viewValue) {
+        wc.getAddress = function (viewValue) {
           if (viewValue) {
-            $scope.showSpinner = true;
+            wc.showSpinner = true;
           }
           return AddressService.getList(viewValue).then(function (res) {
-            $scope.showSpinner = false;
+            wc.showSpinner = false;
             return res.data.results;
           });
         };
 
-        $scope.updateDashboard = function (value) {
+        wc.updateDashboard = function (isFahrenheit) {
+          wc.showSpinner = true;
+          wc.weather = {};
 
-          $scope.weather = {};
-          $scope.showSpinner = true;
-          $scope.config.temperatureType = value || $scope.config.temperatureType;
+          // If temperature type was changed manually
+          wc.weatherService.isFahrenheit = isFahrenheit || isFahrenheit === false ?
+            isFahrenheit : wc.weatherService.isFahrenheit;
 
-          if ($scope.config.selectedAddress && $scope.weatherService && $scope.weatherService.getWeather) {
-
-            $scope.weatherService.lat = $scope.config.lat;
-            $scope.weatherService.lng = $scope.config.lng;
-            $scope.weatherService.isFahrenheit = $scope.config.temperatureType < 2;
-
-            $scope.weatherService.getWeather().then(function (response) {
-              $scope.weather = response.data;
-              $scope.showSpinner = false;
+          if (wc.selectedAddress) {
+            wc.weatherService.getWeather().then(function (response) {
+              wc.weather = response;
+              wc.showSpinner = false;
             }, function () {
-              $scope.showSpinner = false;
+              wc.showSpinner = false;
               notification.error('Oh my god! :( there was an problem loading the server, ' +
                 'please refresh your page or use another Api server.');
             });
           } else {
-            $scope.showSpinner = false;
+            wc.showSpinner = false;
           }
         };
 
-        $scope.updateApiServer = function () {
-          // Allow to add another services
-          switch ($scope.config.apiServer) {
-            case '1':
-              $scope.weatherService = new ForecastIoService();
-              break;
-            case '2':
-              $scope.weatherService = new WeatherUndergroundService();
-              break;
-          }
+        wc.updateLocation = function (text) {
+          wc.selectedAddress = text;
         };
 
-        $scope.onApiServerChange = function () {
-          $scope.updateApiServer();
-          $scope.updateDashboard();
-        };
-
-        /**
-         * Using $watch to use debounce into the input and delay the digest execution
-         */
-        $scope.$watch('config.selectedAddress', function () {
-          geoCoder.getLatitudeLongitude($scope.config.selectedAddress).then(
+        $scope.$watch('wc.selectedAddress', function () {
+          geoCoder.getLatitudeLongitude(wc.selectedAddress).then(
             function (response) {
-              $scope.config.lat = response.lat;
-              $scope.config.lng = response.lng;
-              $scope.updateDashboard();
+              wc.weatherService.setCoordinates(response);
+              wc.updateDashboard();
             });
         });
 
-        $scope.updateLocation = function (text) {
-          $scope.config.selectedAddress = text;
-        };
-
         // Initialize server
-        $scope.updateApiServer();
-        $scope.updateLocation('New York, NY, USA');
-
+        wc.updateLocation('New York, NY, USA');
       }]);
 })();

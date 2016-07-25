@@ -5,32 +5,34 @@
                 <label><i class="fa fa-home"></i> Type a location: </label>
                 <input type="text"
                        class="form-control"
-                       ng-model="config.selectedAddress"
+                       ng-model="wc.selectedAddress"
                        data-animation="am-flip-x"
-                       bs-options="address.formatted_address as address.formatted_address for address in getAddress($viewValue)"
+                       bs-options="address.formatted_address as address.formatted_address for address in wc.getAddress($viewValue)"
                        placeholder="Enter address"
                        debounce="1500"
                        bs-typeahead>
 
             </div>
             <div class="btn-group"
-                 ng-model="config.temperatureType"
+                 ng-model="wc.weatherService.isFahrenheit"
                  bs-radio-group>
                 <label class="btn btn-default"
-                       ng-click="updateDashboard(1)">
-                    <input type="radio" class="btn btn-default" value="1">° F</label>
+                       ng-click="wc.updateDashboard(true)">
+                    <input type="radio" class="btn btn-default" value="true">° F</label>
                 <label class="btn btn-default"
-                       ng-click="updateDashboard(2)">
-                    <input type="radio" class="btn btn-default" value="2">° C</label>
+                       ng-click="wc.updateDashboard(false)">
+                    <input type="radio" class="btn btn-default" value="false">° C</label>
             </div>
             &nbsp;
             <div class="btn-group" role="group">
-                <button type="button" ng-click="updateLocation('Miami, FL, USA')" class="btn btn-default">Miami, FL, USA</button>
-                <button type="button" ng-click="updateLocation('New York, NY, USA')" class="btn btn-default">New York, NY, USA</button>
-                <button type="button" ng-click="updateLocation('London, UK')" class="btn btn-default">London, UK</button>
+                <button type="button" ng-click="wc.updateLocation('Lima, Peru')" class="btn btn-default">Lima, Peru</button>
+                <button type="button" ng-click="wc.updateLocation('Mendoza Province, Argentina')" class="btn btn-default">Mendoza, Argentina</button>
+                <button type="button" ng-click="wc.updateLocation('Miami, FL, USA')" class="btn btn-default">Miami, FL, USA</button>
+                <button type="button" ng-click="wc.updateLocation('New York, NY, USA')" class="btn btn-default">New York, NY, USA</button>
+                <button type="button" ng-click="wc.updateLocation('London, UK')" class="btn btn-default">London, UK</button>
             </div>
 
-            <div class="form-group" ng-show="showSpinner">
+            <div class="form-group" ng-show="wc.showSpinner">
                 <span us-spinner></span>
             </div>
             <div class="form-group pull-right">
@@ -38,10 +40,9 @@
                 <select id="api"
                         name="api"
                         class="form-control"
-                        ng-change="onApiServerChange()"
-                        ng-model="config.apiServer">
-                    <option value="1">Forecast IO</option>
-                    <option value="2">Weather Underground</option>
+                        ng-change="wc.updateDashboard()"
+                        ng-model="wc.weatherService.serviceType"
+                        ng-options="item.id as item.name for item in wc.serviceList">
                 </select>
             </div>
         </form>
@@ -55,11 +56,16 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">Right Now</h3>
                 </div>
-                <div ng-if="weather.currently"
+                <div ng-if="wc.weather.currently"
                      class="panel-body text-center">
-                    <div><h1>{{weather.currently.temperature}}°</h1></div>
-                    <div><weather-icon data-image="weather.currently.icon" data-id-name="main" data-size="100"></weather-icon></div>
-                    <div><b>{{weather.currently.summary}}</b></div>
+                    <div><h1>{{wc.weather.currently.temperature}}°</h1></div>
+                    <div>
+                        <weather-icon data-image="wc.weather.currently.icon"
+                                      data-id-name="main"
+                                      data-size="100">
+                        </weather-icon>
+                    </div>
+                    <div><b>{{wc.weather.currently.summary}}</b></div>
                 </div>
             </div>
         </div>
@@ -69,7 +75,13 @@
                     <h3 class="panel-title">Location Map</h3>
                 </div>
                 <div class="panel-body text-center map-wrap">
-                    <div g-map data-lat="config.lat" data-lng="config.lng" id="map" class="map"></div>
+                    <div g-map
+                         data-lat="wc.weatherService.lat"
+                         data-lng="wc.weatherService.lng"
+                         id="map"
+                         class="map">
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -87,8 +99,8 @@
                         <th>Temperature</th>
                         <th>Summary</th>
                     </tr>
-                    <tr ng-repeat="day in weather.daily.data">
-                        <td>{{day.time*1000 | date:'EEEE, MMMM d'}}</td>
+                    <tr ng-repeat="day in wc.weather.daily">
+                        <td>{{day.time | date:'EEEE, MMMM d'}}</td>
                         <td>
                             <weather-icon data-image="day.icon"
                                           data-id-name="{{$index}}"
